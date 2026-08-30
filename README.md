@@ -68,9 +68,10 @@ interactive window to pause any live run.
 - **Decentralized coordination** — agents share just their goals and corridor
   intents; a lightweight coordinator allocates conflict-free corridors using a
   simple priority scheme. No central path planner.
-- **Smart conflict resolution** — when two corridors clash, lower-priority
-  vehicles yield by: pushing their lane aside, making it narrower, or simply
-  waiting until the space is free.
+- **Deterministic conflict resolution** — when two corridors clash, a deliberate
+  *greedy* algorithm settles it in a fixed, repeatable way: lower-priority
+  vehicles yield by pushing their lane aside, making it narrower, or simply
+  waiting until the space is free. Same setup in, same outcome out.
 - **4 to 8 vehicles** — tune the fleet size with one flag.
 - **Live visualization** — a Pygame view showing corridors, vehicles, their
   trajectories, and live metrics, with handy keyboard controls.
@@ -89,16 +90,27 @@ interactive window to pause any live run.
 
 ### A little more detail
 
+The coordinator's job is to turn all those requests into a set of corridors that
+never clash. It does this with the **Greedy Priority-based Spatio-Temporal
+Corridor Allocation algorithm**:
+
 1. **Each vehicle broadcasts a request** — *"here's where I am, where I want to
    go, and how soon"* — along with a simple priority score (`1 / distance`).
 2. **A corridor is built** for each request: an axis-aligned box stretched along
    the straight path from start to goal, plus a time window sized from the
    nominal travel time.
-3. **Corridors that overlap *in space and time*** are repaired, lowest priority
-   first:
-   - **Shift** the corridor to the side,
-   - **Shrink** it if there's no room to shift,
-   - or **delay it** — open it only after the other vehicle has cleared the area.
+3. **Corridors are allocated greedily by priority** — the highest-priority
+   vehicle gets its ideal corridor first, and each later vehicle gets whatever
+   is left. Whenever a corridor clashes with one already allocated, it is
+   repaired through an **ordered cascade — Shift → Shrink → Delay**:
+   - **Shift** the corridor to the side first;
+   - **Shrink** it (make it narrower) only if there's no room to shift;
+   - **Delay** it — open it later, after the other vehicle has cleared the area —
+     only if shrinking isn't enough.
+
+   Because each step is tried in the same fixed order with the same inputs, the
+   whole process is **deterministic**: run it twice and you get the same
+   conflict-free layout every time.
 4. **Each vehicle then travels inside its assigned corridor.** Its low-level
    controller keeps a look-ahead waypoint clamped within the box, nudges away
    from the walls, and uses LiDAR to avoid any leftover obstacles.
@@ -108,7 +120,9 @@ interactive window to pause any live run.
 
 This clean separation between *"who gets which space, when"* (slow, occasional)
 and *"how to move inside my slice"* (fast, continuous) is what makes the design
-simple, explainable, and robust.
+simple, explainable, and robust. It's also, deliberately, a **clean and
+transparent baseline** — a simple, readable reference point that future, more
+sophisticated corridor-allocation methods can be measured against.
 
 > For the full technical breakdown — architecture diagram, data flow, algorithms,
 > and the math — see the [`DEVELOPMENT_GUIDE.md`](DEVELOPMENT_GUIDE.md).
