@@ -1,0 +1,46 @@
+[
+  {
+    "mode": "baseline",
+    "n_vehicles": 1,
+    "success_count": 1,
+    "success_rate": 1.0,
+    "average_travel_time": 28.0,
+    "total_travel_time": 28.0,
+    "conflicts_resolved": 0,
+    "collisions": 0,
+    "sim_time": 28.0
+  },
+  {
+    "mode": "stc",
+    "n_vehicles": 4,
+    "success_count": 4,
+    "success_rate": 1.0,
+    "average_travel_time": 17.2,
+    "total_travel_time": 68.8,
+    "conflicts_resolved": 0,
+    "collisions": 0,
+    "sim_time": 17.2
+  },
+  {
+    "mode": "stc",
+    "n_vehicles": 6,
+    "success_count": 6,
+    "success_rate": 1.0,
+    "average_travel_time": 22.85,
+    "total_travel_time": 137.1,
+    "conflicts_resolved": 11,
+    "collisions": 0,
+    "sim_time": 35.7
+  },
+  {
+    "mode": "stc",
+    "n_vehicles": 8,
+    "success_count": 8,
+    "success_rate": 1.0,
+    "average_travel_time": 24.9,
+    "total_travel_time": 199.2,
+    "conflicts_resolved": 21,
+    "collisions": 0,
+    "sim_time": 35.7
+  }
+]

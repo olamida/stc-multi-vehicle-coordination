@@ -1,0 +1,11 @@
+{
+  "mode": "stc",
+  "n_vehicles": 8,
+  "success_count": 8,
+  "success_rate": 1.0,
+  "average_travel_time": 24.9,
+  "total_travel_time": 199.2,
+  "conflicts_resolved": 21,
+  "collisions": 0,
+  "sim_time": 35.7
+}

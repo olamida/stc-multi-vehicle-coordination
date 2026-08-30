@@ -1,0 +1,11 @@
+{
+  "mode": "baseline",
+  "n_vehicles": 1,
+  "success_count": 1,
+  "success_rate": 1.0,
+  "average_travel_time": 28.0,
+  "total_travel_time": 28.0,
+  "conflicts_resolved": 0,
+  "collisions": 0,
+  "sim_time": 28.0
+}

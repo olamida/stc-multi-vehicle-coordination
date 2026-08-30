@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+
+# Build / tooling
+dist/
+build/
+.idea/
+.vscode/
+*.log
+
+# Stray local artifacts
+output.txt
+
+# Optional: uncomment to exclude large generated media from your repo
+# results/*.gif
+# results/*.png
