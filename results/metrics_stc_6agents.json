@@ -3,9 +3,9 @@
   "n_vehicles": 6,
   "success_count": 6,
   "success_rate": 1.0,
-  "average_travel_time": 22.85,
-  "total_travel_time": 137.1,
-  "conflicts_resolved": 11,
+  "average_travel_time": 22.933,
+  "total_travel_time": 137.6,
+  "conflicts_resolved": 12,
   "collisions": 0,
-  "sim_time": 35.7
+  "sim_time": 36.2
 }
