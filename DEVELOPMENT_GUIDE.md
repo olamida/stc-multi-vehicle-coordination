@@ -48,6 +48,16 @@ This lets us decouple two very different problems:
 
 That separation is the single most important design decision in the codebase, and it explains nearly every file boundary you will see.
 
+**The central algorithmic contribution** of this work is the **Greedy
+Priority-based Spatio-Temporal Corridor Allocation algorithm**. It is a
+deterministic, greedy method that converts the fleet's intent (goals +
+priorities) into a single conflict-free set of STCs by allocating one vehicle at
+a time — highest priority first — and repairing any clash through an **ordered
+Shift → Shrink → Delay repair cascade**. Simple, auditable, and fully
+reproducible, it is the mechanism that guarantees motion stays safe and
+deadlock-free while remaining a transparent baseline against which richer
+optimization- or learning-based allocators can later be compared.
+
 ---
 
 ## 2. Problem statement
@@ -273,21 +283,21 @@ The `conflicts_with(margin)` margin param allows a **security buffer** between c
 
 ### 8.4 `src/corridor/stc_generator.py`
 
-**Responsibilities:** allocate a conflict-free set of STCs from requests, and count repairs.
+**Responsibilities:** implement the central algorithmic contribution — the **Greedy Priority-based Spatio-Temporal Corridor Allocation** algorithm — which allocates a conflict-free set of STCs from requests and counts repairs.
 
-The allocation is a **greedy priority sweep**:
+The algorithm is a **greedy priority sweep** with an **ordered repair cascade (Shift → Shrink → Delay)**:
 
 1. Sort requests by descending priority (ties broken by vehicle id for determinism).
 2. For each request, build a **tube** corridor: bounding AABB of start→goal inflated by half the preferred width (with a floor of `min_width`), and a time window from nominal travel time + padding.
-3. Against already-accepted corridors, find the first `conflicts_with`. Repair it with the cascade:
-   - **(a) Shift** — push the corridor 2.2 m away from the other's center.
-   - **(b) Shrink** — reduce width/height to 75% (floor at `min_width`), centered.
-   - **(c) Time delay** — set `t_start` after the blocker's `t_end` (open later).
+3. Against already-accepted corridors, find the first `conflicts_with`. Repair it with the **ordered cascade** — each step is tried in strict sequence, and only proceeds to the next if the current one fails to clear the conflict:
+   - **(a) Shift** — push the corridor 2.2 m away from the other's center (move in space).
+   - **(b) Shrink** — reduce width/height to 75% (floor at `min_width`), centered (make it narrower in space).
+   - **(c) Delay** — set `t_start` after the blocker's `t_end` (open later in time).
 
    Increment `conflicts_resolved` on every successful repair.
 4. Clamp to world bounds and emit.
 
-The **priority function** is designed to be utilitarian: close, fast vehicles win (`1/distance + small speed bonus`). The `_resolve_against` loop runs a bounded number of iterations (12) and falls back to a guaranteed time shift, so the process always terminates.
+The **priority function** is designed to be utilitarian: close, fast vehicles win (`1/distance + small speed bonus`). The `_resolve_against` loop runs a bounded number of iterations (12) and falls back to a guaranteed time shift, so the process always terminates. The fixed order of the cascade — **Shift → Shrink → Delay** — is what makes the algorithm deterministic: the same inputs always produce the same conflict-free allocation.
 
 ### 8.5 `src/coordination/decentralized.py`
 
@@ -376,7 +386,7 @@ Delay:  C.t_start ← C_other.t_end + Δ;  C.t_end ← C.t_start + duration
 
 ## 10. Core algorithms
 
-### 10.1 STC allocation (greedy)
+### 10.1 STC allocation — Greedy Priority-based Spatio-Temporal Corridor Allocation
 
 ```
 Input:  requests R, optional existing corridors E
@@ -386,7 +396,7 @@ L ← E
 sort R by (priority↓, id↑)
 for req in R:
     c ← BuildTube(req)                  # AABB inflate, nominal travel time
-    c ← ResolveAgainst(c, L)            # bounded repair cascade (shift/shrink/delay)
+    c ← ResolveAgainst(c, L)            # bounded repair cascade: Shift → Shrink → Delay
     c ← ClampToWorld(c)
     L ← L ∪ {c}
 return L
@@ -652,17 +662,21 @@ Reference results produced by this codebase (fully reproducible with the default
 2. **Single plan shape.** Corridors are built as one bounding tube per vehicle per replan, not piecewise channel sequences with waypoint turns.
 3. **Simulated decentralization.** The message bus is hosted by one coordinator object in one process; true networking, dropouts, and latency are not modeled.
 4. **Static world only.** Obstacles are fixed; there is no pedestrian/dynamic-obstacle support inside the corridor framework.
-5. **Greedy allocation is not optimal.** Priority scheduling is heuristic and seed-dependent; it can produce sub-optimal packs compared to an optimizer.
+5. **Greedy allocation is not optimal.** The Greedy Priority-based Spatio-Temporal Corridor Allocation algorithm with its ordered Shift → Shrink → Delay cascade is heuristic and seed-dependent; it can produce sub-optimal packs compared to an optimizer. It is intentionally designed as a **clean, transparent baseline** — a simple, readable reference point that future optimization-based or learning-based corridor-allocation methods can be measured against.
 6. **No formal safety proof.** The invariant is structural (non-overlap ⇒ safety), but we do not verify reachability/barrier certificates at runtime.
 
 ---
 
 ## 19. Future work
 
+The current **Greedy Priority-based Spatio-Temporal Corridor Allocation** with its ordered **Shift → Shrink → Delay** cascade is intentionally a **transparent baseline** — simple, readable, and deterministic. The following directions build on this foundation:
+
 - **Piecewise / SE(2) corridors** with orientation-aware footprints for curved, non-rectangular paths.
 - **Optimization-based STC** (MIP/QP) to tighten packs and minimize total travel time instead of heuristic repair.
+- **Learning-based allocation** — replacing the greedy priority sweep with a learned policy that can outperform the cascade on dense scenarios.
 - **Real communication models** — finite range, packet loss, delay, and a true consensus layer replacing the single-process bus.
 - **Dynamic obstacles & humans** inside the same STC abstraction (moving reservations).
+- **Runtime safety verification** — adding reachability analysis or barrier certificates on top of the structural non-overlap invariant.
 - **Learning-based priority/width** adaptation on top of the corridor layer (RL/IL).
 - **Formal safety** — reachable-set validation or barrier certificates for runtime guarantees.
 - **Hardware bridge (ROS 2)** to deploy the controller on physical differential-drive robots.
