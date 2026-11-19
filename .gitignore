@@ -19,7 +19,5 @@ build/
 
 # Stray local artifacts
 output.txt
-
-# Optional: uncomment to exclude large generated media from your repo
-# results/*.gif
-# results/*.png
+results/quick/
+.DS_Store
