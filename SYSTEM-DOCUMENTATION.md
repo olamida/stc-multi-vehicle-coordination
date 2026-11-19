@@ -72,9 +72,11 @@ python -m src.main --mode stc --agents 8 --gif
 ```
 
 CI (`.github/workflows/ci.yml`) runs on push and pull request. Jobs install the
-documented dependencies, set `PYTHONPATH=src` where required, and run the test
-suite. Repositories that call C code install a system compiler in CI; footprint
-measurement with cross-compilers is deliberately optional.
+documented dependencies, set `PYTHONPATH=src` where required, and run the
+documented verification command (a headless 6-agent smoke check in this
+repository; no unit-test suite is shipped). Repositories that call C code
+install a system compiler in CI; footprint measurement with cross-compilers is
+deliberately optional.
 
 ## 8. Extension points
 
