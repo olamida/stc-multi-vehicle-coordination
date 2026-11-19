@@ -113,7 +113,7 @@ The following principles governed every architectural decision:
 
 3. **Stand on a solid single-vehicle foundation.** A multi-agent system that cannot navigate alone will not behave well together. Hence the deliberate inclusion of the single-vehicle baseline as a first-class mode — it is both the *foundation* of the work and a *control* in the experiments.
 
-4. **Prefer greedy, deterministic, explainable allocation.** Over a full optimal planner, we favor something auditable: sort by priority, allocate greedily, and repair conflicts with explicit, countable operations.
+4. **Prefer greedy, deterministic, explainable allocation.** Over a full optimal planner, we favor something auditable: the **Greedy Priority-based Spatio-Temporal Corridor Allocation algorithm** with its ordered **Shift → Shrink → Delay** repair cascade — sort by priority, allocate greedily, and repair conflicts with explicit, countable operations.
 
 5. **Physical plausibility.** Vehicles are not point masses: they have size, heading, acceleration limits, and angular-rate limits. The STC bounding boxes are inflated by the vehicle footprint, so the corridor guarantee is meaningful at the physical scale.
 

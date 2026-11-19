@@ -1,5 +1,8 @@
 # Spatio-Temporal Corridor Multi-Agent Coordination
 
+![ci](https://github.com/olamida/stc-multi-vehicle-coordination/actions/workflows/ci.yml/badge.svg)
+
+
 **Decentralized Multi-Vehicle Coordination using Spatio-Temporal Corridors (2D)**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -326,6 +329,31 @@ Here are reference results produced on a standard machine with the default seeds
   architecture diagram, data flow, algorithms, mathematics, and usage walkthrough.
 
 ---
+
+## Research Context
+
+This implementation is the **reference codebase** for the research paper on decentralized multi-vehicle coordination using Spatio-Temporal Corridors. It is intentionally designed as a **transparent, reproducible baseline** — the **Greedy Priority-based Spatio-Temporal Corridor Allocation algorithm** with its ordered **Shift → Shrink → Delay** cascade is deliberately simple and readable, so that future optimization-based or learning-based corridor-allocation methods can be measured against it. If you build on this work, please cite the paper (see `CITATION.cff` or the paper's DOI for details).
+
+---
+
+
+## Simulated animation
+
+[![Eight vehicles negotiating perpendicular lanes](results/stc_8agents.gif)](results/stc_8agents.gif)
+
+*Eight vehicles negotiating perpendicular lanes. Regenerate with `python -m src.main --mode stc --agents 8 --gif`; the frames are produced by this project's own simulator.*
+
+
+## How this connects
+
+Ground-vehicle ancestor of [`stc-corridors`](https://github.com/olamida/stc-corridors); formal verification is explored in [`stc-formal`](https://github.com/olamida/stc-formal).
+
+## Portfolio documentation
+
+- [`APP-GUIDE.md`](APP-GUIDE.md) — work executed and work still to do.
+- [`USER-GUIDE.md`](USER-GUIDE.md) — end-user manual.
+- [`PENDING-TASKS.md`](PENDING-TASKS.md) — AI session-continuity ledger.
+- [`SYSTEM-DOCUMENTATION.md`](SYSTEM-DOCUMENTATION.md) — developer/architecture reference.
 
 ## License
 
